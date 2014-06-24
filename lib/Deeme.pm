@@ -1,18 +1,21 @@
 package Deeme;
 use strict;
 use 5.008_005;
-our $VERSION = '0.01';
-use Mojo::Base -base;
+our $VERSION = '0.02';
+use Deeme::Obj -base;
 use Carp 'croak';
 has 'backend';
 use Scalar::Util qw(blessed weaken);
-
 use constant DEBUG => $ENV{DEEME_DEBUG} || 0;
 
 sub new {
     my $self = shift;
     $self = $self->SUPER::new(@_);
-    croak("No backend defined") if !$self->backend;
+    if ( !$self->backend ) {
+        warn 'No backend defined, defaulting to Deeme::Backend::Memory';
+        use Deeme::Backend::Memory;
+        $self->backend( Deeme::Backend::Memory->new );
+    }
     $self->backend->deeme($self);
     return $self;
 }
@@ -28,15 +31,11 @@ sub emit {
         my @onces = $self->backend->events_onces($name);
         my $i     = 0;
         for my $cb (@$s) {
-            if ( $onces[$i] == 1 ) {
-                splice @onces, $i, 1;
-                $self->_unsubscribe_index( $name => $i );
-            }
-            else {
-                $i++;
-            }
+            ( $onces[$i] == 1 )
+                ? ( splice( @onces, $i, 1 )
+                    and $self->_unsubscribe_index( $name => $i ) )
+                : $i++;
             $self->$cb(@_);
-
         }
     }
     else {
@@ -58,15 +57,11 @@ sub emit_safe {
         for my $cb (@$s) {
             $self->emit( error => qq{Event "$name" failed: $@} )
                 unless eval {
-                if ( $onces[$i] == 1 ) {
-                    splice @onces, $i, 1;
-                    $self->_unsubscribe_index( $name => $i );
-                }
-                else {
-                    $i++;
-                }
+                ( $onces[$i] == 1 )
+                    ? ( splice( @onces, $i, 1 )
+                        and $self->_unsubscribe_index( $name => $i ) )
+                    : $i++;
                 $self->$cb(@_);
-
                 1;
                 };
         }
@@ -153,7 +148,7 @@ Deeme - a Database-agnostic driven Event Emitter
 =head1 SYNOPSIS
 
   package Cat;
-  use Mojo::Base 'Deeme';
+  use Deeme::Obj 'Deeme';
   use Deeme::Backend::Meerkat;
 
   # app1.pl
@@ -197,7 +192,7 @@ Emitted for event errors, fatal if unhandled.
 
 =head1 METHODS
 
-L<Deeme> inherits all methods from L<Mojo::Base> and
+L<Deeme> inherits all methods from L<Deeme::Obj> and
 implements the following new ones.
 
 =head2 catch

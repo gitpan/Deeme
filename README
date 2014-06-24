@@ -3,7 +3,7 @@ NAME
 
 SYNOPSIS
       package Cat;
-      use Mojo::Base 'Deeme';
+      use Deeme::Obj 'Deeme';
       use Deeme::Backend::Meerkat;
 
       # app1.pl
@@ -46,7 +46,7 @@ EVENTS
       });
 
 METHODS
-    Deeme inherits all methods from Mojo::Base and implements the following
+    Deeme inherits all methods from Deeme::Obj and implements the following
     new ones.
 
   catch

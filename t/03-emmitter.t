@@ -1,11 +1,11 @@
-use Mojo::Base -strict;
+use Deeme::Obj -strict;
 
 use Test::More;
 use Deeme;
 use Deeme::Backend::Memory;
 
 # Normal event
-my $e = Deeme->new( backend => Deeme::Backend::Memory->new() );
+my $e = Deeme->new( );
 my $called;
 $e->on( test1 => sub { $called++ } );
 $e->emit('test1');

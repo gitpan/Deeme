@@ -13,8 +13,13 @@ ex/roar.pl
 lib/Deeme.pm
 lib/Deeme/Backend.pm
 lib/Deeme/Backend/Memory.pm
+lib/Deeme/Obj.pm
 lib/Deeme/Utils.pm
 t/01-basic.t
 t/02-backend.t
 t/03-emmitter.t
+t/04-obj.t
+t/lib/Deeme/ObjTest/Base1.pm
+t/lib/Deeme/ObjTest/Base2.pm
+t/lib/Deeme/ObjTest/Base3.pm
 t/release-pod-syntax.t
