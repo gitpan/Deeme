@@ -1,7 +1,7 @@
 package Deeme;
 use strict;
 use 5.008_005;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 use Deeme::Obj -base;
 use Carp 'croak';
 has 'backend';
@@ -12,8 +12,7 @@ sub new {
     my $self = shift;
     $self = $self->SUPER::new(@_);
     if ( !$self->backend ) {
-        warn 'No backend defined, defaulting to Deeme::Backend::Memory';
-        use Deeme::Backend::Memory;
+        require Deeme::Backend::Memory;
         $self->backend( Deeme::Backend::Memory->new );
     }
     $self->backend->deeme($self);
@@ -78,11 +77,15 @@ sub has_subscribers { !!@{ shift->subscribers(shift) } }
 
 sub on {
     my ( $self, $name, $cb ) = @_;
+    warn "-- on $name in @{[blessed $self]}\n"
+        if DEBUG;
     return $self->backend->event_add( $name, $cb ||= [], 0 );
 }
 
 sub once {
     my ( $self, $name, $cb ) = @_;
+    warn "-- once $name in @{[blessed $self]}\n"
+        if DEBUG;
     return $self->backend->event_add( $name, $cb ||= [], 1 );
 }
 
@@ -136,6 +139,7 @@ sub _unsubscribe_index {
     return $self;
 }
 
+
 1;
 __END__
 
@@ -170,7 +174,9 @@ Deeme - a Database-agnostic driven Event Emitter
 =head1 DESCRIPTION
 
 Deeme is a database-agnostic driven event emitter base-class.
-Deeme allows you to define binding subs on different points in multiple applications, and execute them later, in another worker. It is handy if you have to attach subs to events that are delayed in time and must be fixed. It is strongly inspired by (and a rework of) L<Mojo::EventEmitter>.
+Deeme allows you to define binding subs on different points in multiple applications, and execute them later, in another worker. It is handy if you have to attach subs to events that are delayed in time and must be fixed. It can act also like a jobqueue and It is strongly inspired by (and a rework of) L<Mojo::EventEmitter>.
+
+Have a look at L<Deeme::Worker> for the jobqueue functionality.
 
 =head1 EVENTS
 
@@ -290,6 +296,6 @@ it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<Deeme::Backend::Memory>, L<Deeme::Backend::Mango>, L<Deeme::Backend::Meerkat>, L<Mojo::EventEmitter>, L<Mojolicious>
+L<Deeme::Worker>, L<Deeme::Backend::Memory>, L<Deeme::Backend::Mango>, L<Deeme::Backend::Meerkat>, L<Mojo::EventEmitter>, L<Mojolicious>
 
 =cut

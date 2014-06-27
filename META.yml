@@ -21,13 +21,14 @@ no_index:
     - share
     - eg
     - examples
+recommends:
+  feature: 0
 requires:
   MIME::Base64: 0
   Scalar::Util: 0
-  feature: 0
   perl: 5.008_005
 resources:
   bugtracker: https://github.com/mudler/p5-Deeme/issues
   homepage: https://github.com/mudler/p5-Deeme
   repository: https://github.com/mudler/p5-Deeme.git
-version: 0.02
+version: 0.03
