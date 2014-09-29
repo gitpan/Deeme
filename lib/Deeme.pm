@@ -1,11 +1,11 @@
 package Deeme;
 use strict;
 use 5.008_005;
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 use Deeme::Obj -base;
 use Carp 'croak';
 has 'backend';
-use Scalar::Util qw(blessed weaken);
+use Scalar::Util qw(blessed);
 use constant DEBUG => $ENV{DEEME_DEBUG} || 0;
 
 sub new {
@@ -89,11 +89,12 @@ sub once {
     return $self->backend->event_add( $name, $cb ||= [], 1 );
 }
 
-sub subscribers { shift->backend->events_get( shift(), 0 ) || [] }
+sub subscribers { shift->backend->events_get( shift, 0 ) || [] }
 
 sub unsubscribe {
     my ( $self, $name, $cb ) = @_;
-
+    warn "-- unsubscribe $name in @{[blessed $self]}\n"
+        if DEBUG;
     # One
     if ($cb) {
         my @events = @{ $self->backend->events_get( $name, 0 ) };
@@ -119,6 +120,8 @@ sub unsubscribe {
 
 sub reset {
     my $self = shift;
+     warn "-- events reset called in @{[blessed $self]}\n"
+        if DEBUG;
     $self->backend->events_reset;
     return $self;
 }
@@ -126,6 +129,8 @@ sub reset {
 sub _unsubscribe_index {
     my ( $self, $name, $index ) = @_;
 
+    warn "-- unsubscribing $name (# $index) in @{[blessed $self]}\n"
+        if DEBUG;
     my @events = @{ $self->backend->events_get( $name, 0 ) };
     my @onces = $self->backend->events_onces($name);
 
